@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>朱元璋·逆袭之路</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary: #C0392B; --bg: #F8F9FA; --card: #FFFFFF; --text: #212529; --text-secondary: #6C757D; --border: #E9ECEF; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; font-size: 16px; min-height: 100vh; }
+    .app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--card); box-shadow: 0 0 40px rgba(0,0,0,0.05); }
+    .page { display: none; min-height: 100vh; flex-direction: column; }
+    .page.active { display: flex; }
+    .home { justify-content: center; align-items: center; padding: 32px; text-align: center; background: linear-gradient(180deg, #F8F9FA 0%, #E9ECEF 100%); }
+    .home-cover { width: 100%; height: 180px; background: linear-gradient(135deg, var(--primary) 0%, #8E2E23 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px; }
+    .home-cover-icon { font-size: 64px; color: rgba(255,255,255,0.9); }
+    .home-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .home-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 48px; }
+    .home-btn { width: 100%; height: 52px; border-radius: 999px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; margin-bottom: 12px; transition: all 0.2s; }
+    .home-btn-primary { background: var(--primary); color: white; }
+    .home-btn-secondary { background: white; color: var(--primary); border: 1px solid var(--primary); }
+    .home-footer { margin-top: 32px; font-size: 12px; color: var(--text-secondary); }
+    .nav { height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--card); }
+    .nav-back { background: none; border: none; font-size: 18px; cursor: pointer; padding: 8px; }
+    .nav-title { font-size: 16px; font-weight: 500; }
+    .nav-progress { font-size: 14px; color: var(--text-secondary); }
+    .story-content { flex: 1; padding: 24px 20px; overflow-y: auto; }
+    .story-chapter { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
+    .story-text { font-size: 16px; line-height: 1.9; white-space: pre-wrap; }
+    .story-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; background: var(--card); }
+    .story-nav-btn { padding: 10px 20px; border-radius: 999px; font-size: 14px; cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-secondary); }
+    .story-nav-btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .choice-content { flex: 1; padding: 20px; overflow-y: auto; }
+    .choice-intro { font-size: 15px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px dashed var(--border); }
+    .choice-label { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+    .choice-list { display: flex; flex-direction: column; gap: 12px; }
+    .choice-item { background: white; border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .choice-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .choice-text { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+    .choice-desc { font-size: 13px; color: var(--text-secondary); }
+    .ending-content { flex: 1; padding: 32px 20px; overflow-y: auto; }
+    .ending-tag { display: inline-block; padding: 4px 12px; background: var(--primary); color: white; font-size: 12px; font-weight: 600; border-radius: 999px; margin-bottom: 12px; }
+    .ending-tag.fail { background: var(--text-secondary); }
+    .ending-title { font-size: 28px; font-weight: 700; margin-bottom: 24px; }
+    .ending-text { font-size: 15px; line-height: 2; white-space: pre-wrap; }
+    .ending-footer { padding: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+    .ending-btn { width: 100%; height: 48px; border-radius: 999px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; }
+    .ending-btn-primary { background: var(--primary); color: white; }
+    .ending-btn-secondary { background: white; color: var(--text); border: 1px solid var(--border); }
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 999px; font-size: 14px; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+    .toast.show { opacity: 1; }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .chapter-tag { display: inline-block; padding: 2px 8px; background: var(--border); color: var(--text-secondary); font-size: 11px; border-radius: 4px; margin-left: 8px; }
+    .story-image { width: 100%; margin-top: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="page-home" class="page home active">
+      <div class="home-cover"><div class="home-cover-icon">👑</div></div>
+      <h1 class="home-title">朱元璋·逆袭之路</h1>
+      <p class="home-subtitle">从乞丐到皇帝的传奇人生</p>
+      <button class="home-btn home-btn-primary" onclick="game.start()">开始游戏</button>
+      <button id="btn-continue" class="home-btn home-btn-secondary" onclick="game.continueGame()" style="display:none">继续上次</button>
+      <div class="home-footer"><span>v1.4</span> · <span>约40分钟</span></div>
+    </div>
+    <div id="page-story" class="page">
+      <div class="nav"><div class="nav-left"><button class="nav-back" onclick="game.goHome()">←</button><span class="nav-title" id="story-title">序章</span><span class="chapter-tag" id="chapter-tag">序章</span></div><span class="nav-progress" id="story-progress"></span></div>
+      <div class="story-content"><h2 class="story-chapter" id="story-chapter-title"></h2><div class="story-text" id="story-text"></div><img id="story-image" class="story-image" style="display:none"></div>
+      <div class="story-footer"><button class="story-nav-btn" id="btn-back" onclick="game.goBack()">◀ 返回</button><button class="story-nav-btn primary" id="btn-continue-story" onclick="game.continueStory()">继续 ▶</button></div>
+    </div>
+    <div id="page-choice" class="page">
+      <div class="nav"><div class="nav-left"><button class="nav-back" onclick="game.goHome()">←</button><span class="nav-title" id="choice-title">选择</span></div></div>
+      <div class="choice-content"><p class="choice-intro" id="choice-intro"></p><p class="choice-label">你现在决定——</p><div class="choice-list" id="choice-list"></div></div>
+    </div>
+    <div id="page-ending" class="page">
+      <div class="nav"><div class="nav-left"><button class="nav-back" onclick="game.goHome()">←</button><span class="nav-title">结局</span></div></div>
+      <div class="ending-content"><span class="ending-tag" id="ending-tag">通关</span><h2 class="ending-title" id="ending-title">明太祖</h2><div class="ending-text" id="ending-text"></div></div>
+      <div class="ending-footer"><button class="ending-btn ending-btn-primary" onclick="game.restart()">重新开始</button></div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+  <script>
+const game = {
+  data: null,
+  state: { currentNode: null, history: [], unlockedEndings: [], totalPlays: 0, totalTime: 0, startTime: null },
+  init() {
+    this.data = STORY_DATA;
+    this.loadState();
+    this.updateHomeState();
+  },
+  showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-'+id).classList.add('active'); },
+  showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); },
+  updateHomeState() { document.getElementById('btn-continue').style.display = this.state.currentNode ? 'block' : 'none'; },
+  start() { this.state = { currentNode: this.data.startNode, history: [], unlockedEndings: [], totalPlays: this.state.totalPlays, totalTime: this.state.totalTime, startTime: Date.now(), attrs: {仁德:0,威权:0,隐忍:0,果决:0} }; this.saveState(); this.showNode(this.state.currentNode); },
+  continueGame() { if (this.state.currentNode) this.showNode(this.state.currentNode); else this.start(); },
+  goHome() { this.saveState(); this.showPage('home'); this.updateHomeState(); },
+  goBack() { if (this.state.history.length > 1) { this.state.history.pop(); this.showNode(this.state.history[this.state.history.length-1], false); } else this.goHome(); },
+  continueStory() { const node = this.data.nodes[this.state.currentNode]; if (node.choices && node.choices.length > 0) this.showChoice(); else { this.showToast('没有后续内容'); } },
+  showNode(nodeId, addToHistory = true) {
+    const node = this.data.nodes[nodeId];
+    if (!node) { this.showToast('节点不存在: ' + nodeId); return; }
+    if (addToHistory) { this.state.history.push(nodeId); }
+    this.state.currentNode = nodeId;
+    // Chapter tracking
+    let chapter = '序章';
+    if (nodeId.startsWith('chapter1')) chapter = '第一章';
+    else if (nodeId.startsWith('chapter2')) chapter = '第二章';
+    else if (nodeId.startsWith('chapter3')) chapter = '第三章';
+    else if (nodeId.startsWith('chapter4')) chapter = '第四章';
+    else if (nodeId.startsWith('chapter5')) chapter = '第五章';
+    else if (nodeId.startsWith('chapter6')) chapter = '第六章';
+    document.getElementById('story-title').textContent = node.title.split('：')[0] || '剧情';
+    document.getElementById('chapter-tag').textContent = chapter;
+    document.getElementById('story-chapter-title').textContent = node.title;
+    document.getElementById('story-text').textContent = node.content;
+    // 显示配图
+    const img = document.getElementById('story-image');
+    const nodeImgMap = {
+      'prologue_1': 'prologue_1.png',
+      'yunyou': 'prologue_yunyou.png',
+      'chapter1_enter': 'chapter1_enter.png',
+      'chapter1_renamed': 'chapter1_renamed.png',
+      'chapter2_marriage': 'chapter2_marriage.png',
+      'chapter3_leave': 'chapter3_leave.png',
+      'chapter4_war': 'chapter4_war.png',
+      'chapter4_establish': 'chapter4_establish.png',
+      'chapter5_enemy': 'chapter5_enemy.png',
+      'chapter5_battle_fire': 'chapter5_battle_fire.png',
+      'chapter6_final': 'chapter6_final.png',
+      'ending_ming': 'ending_ming.png'
+    };
+    if (nodeImgMap[nodeId]) {
+      img.src = 'images/' + nodeImgMap[nodeId];
+      img.style.display = 'block';
+    } else {
+      img.style.display = 'none';
+    }
+    const hasChoices = node.choices && node.choices.length > 0;
+    const isEnding = node.ending;
+    document.getElementById('btn-back').style.visibility = this.state.history.length > 1 ? 'visible' : 'hidden';
+    const btn = document.getElementById('btn-continue-story');
+    if (isEnding) { btn.textContent = '查看结局'; btn.onclick = () => this.showEnding(node.ending); }
+    else if (hasChoices) { btn.textContent = '选择 ▶'; btn.onclick = () => this.showChoice(); }
+    else { btn.textContent = '继续 ▶'; btn.onclick = () => { this.showToast('没有后续'); }; }
+    this.showPage('story');
+  },
+  showChoice() {
+    const node = this.data.nodes[this.state.currentNode];
+    if (!node.choices) return;
+    document.getElementById('choice-intro').textContent = node.content.slice(-80).replace(/\n/g,' ');
+    document.getElementById('choice-title').textContent = node.title.split('：')[0];
+    const list = document.getElementById('choice-list');
+    list.innerHTML = '';
+    node.choices.forEach((c,i) => {
+      const item = document.createElement('div');
+      item.className = 'choice-item';
+      item.style.animationDelay = (i*0.1)+'s';
+      item.innerHTML = `<div class="choice-text">${c.text}</div><div class="choice-desc">${c.desc}</div>`;
+      item.onclick = () => this.makeChoice(c);
+      list.appendChild(item);
+    });
+    this.showPage('choice');
+  },
+  makeChoice(choice) {
+    // 处理属性变化
+    if (choice.attrs) {
+      for (let key in choice.attrs) {
+        this.state.attrs[key] = (this.state.attrs[key] || 0) + choice.attrs[key];
+      }
+    }
+    this.state.history.push(choice.next);
+    if (choice.next.startsWith('ending') || choice.next.startsWith('die')) { this.showEnding(choice.next); }
+    else { this.showNode(choice.next); }
+  },
+  showEnding(endingId) {
+    const ending = this.data.endings[endingId];
+    if (!ending) { this.showToast('结局不存在'); return; }
+    if (!this.state.unlockedEndings.includes(endingId)) this.state.unlockedEndings.push(endingId);
+    this.state.totalPlays++;
+    if (this.state.startTime) this.state.totalTime += Math.floor((Date.now()-this.state.startTime)/60000);
+    this.saveState();
+    
+    // 获取属性影响
+    const attrs = this.state.attrs || {};
+    let content = ending.content;
+    
+    // 在通关结局中添加属性影响的描述
+    if (endingId === 'ending_ming') {
+      let trait = '';
+      // 隐藏结局：千古仁君
+      if (attrs['仁德'] >= 4 && attrs['隐忍'] >= 2) {
+        trait = '\n\n【隐藏成就 · 千古仁君】\n你以仁德治天下，轻徭薄赋，与民休息。\n\n史书赞曰：「太祖起布衣，践履艰难，批荆棘，冒风雪，以有天下」——你是唯一一个从乞丐变成皇帝的传奇。\n\n百姓为你立庙，香火不断。\n\n「千古一帝」，当之无愧。\n\n【恭喜解锁隐藏结局】';
+      } else if (attrs['仁德'] >= 3) {
+        trait = '\n\n【史官评述】\n你以仁德治天下，后世称颂「洪武之治」，赞曰：「得民心者得天下」，开创了三百年大明基业。';
+      } else if (attrs['威权'] >= 4) {
+        trait = '\n\n【史官评述】\n你以威权立国，晚年大杀功臣，史书评曰：「雄猜好杀」，但也正是这份铁腕，才能在乱世中统一天下。';
+      } else if (attrs['隐忍'] >= 2) {
+        trait = '\n\n【史官评述】\n你深谙隐忍之道，缓称王而得天下，是为「高筑墙、广积粮、缓称王」之典范。';
+      } else if (attrs['果决'] >= 3) {
+        trait = '\n\n【史官评述】\n你行事果决，绝不拖泥带水。正是这份果断，让你在乱世中脱颖而出，终成帝业。';
+      } else {
+        trait = '\n\n【史官评述】\n你的一生充满传奇，从乞丐到皇帝，最终开创了明朝三百年基业。';
+      }
+      content += trait;
+    }
+    
+    // 兔死狗烹结局根据属性有不同描述
+    if (endingId === 'ending_kill') {
+      if (attrs['威权'] >= 5) {
+        content = '\n\n【你变了】\n越来越多的功臣被杀。\n\n徐达临死前问你：陛下，还记得我们一起打天下的时候吗？\n\n你没有回答。\n\n只是挥了挥手。\n\n【内心独白】\n他们跟着我的时候，我已经不是当年那个朱重八了。\n\n皇帝，注定是孤独的。';
+      }
+    }
+    
+    const tag = document.getElementById('ending-tag');
+    tag.textContent = ending.tag;
+    tag.className = 'ending-tag' + (ending.type==='fail'?' fail':'');
+    document.getElementById('ending-title').textContent = ending.title;
+    document.getElementById('ending-text').textContent = content;
+    this.showPage('ending');
+  },
+  restart() { this.start(); },
+  saveState() { localStorage.setItem('zhu-yuanzhang-save',JSON.stringify(this.state)); },
+  loadState() { try { const s = localStorage.getItem('zhu-yuanzhang-save'); if(s) this.state = {...this.state,...JSON.parse(s)}; } catch(e){} }
+};
+
+const STORY_DATA = {
+  startNode: "prologue_1",
+  nodes: {
+    "prologue_1": {title:"序章：朱重八",content:"至正三年，濠州钟离。\n\n【环境】\n空气里弥漫着一股甜腻的腐臭，那是土地和尸体混合的味道。你踩过的地面不再是坚实的黄土，而是泛着一种令人不安的软烂。远处传来不像人声的呜咽——你分不清那是风，还是饿极了的人在哭。\n\n【回忆】\n你记得那天娘把你从床上拽起来说：重八，快走……\n\n你看到爹躺在床上瘦得只剩骨架，两颊凹陷，像一具披着人皮的骷髅。娘给你留了半碗粥，那是从她自己碗里匀出来的——她喝的是水。\n\n【失去】\n三天后爹走了。五天后娘也走了。\n\n你把爹娘埋在后山。隔壁王大爷把你从坟前拉起来，他的手在抖：重八走吧，这地方留不住人了。\n\n你只有一个念头：活下去。\n\n【遗物】你身上还穿着娘给改的那件打满补丁的旧袄——这是她最后一针一线缝的。",choices:[{text:"去皇觉寺出家",next:"temple",desc:"寺庙有口饭吃"},{text:"加入逃荒队伍",next:"refugee",desc:"红巾军开仓放粮"},{text:"留在家乡",next:"stay",desc:"守着几亩薄田"}]},
+    "stay": {title:"留下",content:"你留在了钟离。隔壁王大爷收留了你，让你帮忙干活换口饭。\n\n三个月后王大爷饿死了。他把最后一口粥留给了你。\n\n【内心独白】他是为了我而死。我不能辜负他。\n\n但这里真的待不下去了。",choices:[{text:"前往濠州",next:"chapter1_enter",desc:"去投奔红巾军"}]},
+    "temple": {title:"皇觉寺",content:"方丈收留了你，让你有口饭吃。你被安排去打扫佛堂，倒马桶。\n\n至正四年，饥荒蔓延，寺庙断粮了。方丈把你们叫到面前：孩子们，云游去吧……\n\n【内心独白】连寺庙都容不下我了。",choices:[{text:"云游四方",next:"yunyou",desc:"离开寺庙"},{text:"留在寺庙",next:"temple_death",desc:"饿死"}]},
+    "temple_death": {title:"饿死",content:"你饿死在寺庙里。临死前你还在想那碗粥。\n\n【失败-饿死】",ending:"die_starve"},
+    "yunyou": {title:"云游三年",content:"你离开寺庙，三年走遍大半个中国。\n\n见过人吃人的惨状，见过富户酒肉臭。三年后方丈已圆寂。\n\n【内心独白】道士说我是非池中之物……笑话。但我已经不是当年那个朱重八了。\n\n从今天起不再躲了，我要闯出一片天。",choices:[{text:"前往濠州",next:"chapter1_enter",desc:"投奔红巾军",attrs:{隐忍:1}}]},
+    "refugee": {title:"逃荒",content:"你跟着逃荒队伍南下。这一天听说濠州红巾军在开仓放粮，队伍正在招兵买马。\n\n吃饱饭。对你来说，这是世界上最诱人的三个字。",choices:[{text:"去濠州",next:"chapter1_enter",desc:"去试试"}]},
+    "chapter1_enter": {title:"第一章：红巾军",content:"濠州城。\n\n一个五大三粗的汉子问你：叫什么？\n\n你说：朱重八。\n\n他说：我给你改一个——朱元璋。意思是诸璋玉器。\n\n他叫郭子兴，是红巾军首领。",choices:[{text:"接受改名",next:"chapter1_renamed",desc:"朱元璋"}]},
+    "chapter1_renamed": {title:"朱元璋",content:"郭子兴哈哈大笑：从今天起，你就是我郭子兴的人。\n\n他随手扔给你一块饼：吃吧。\n\n【细节】\n你接过饼，那是你这几个月来第一次吃到带热气的食物。\n\n饼很糙，噎得你眼眶发红。但你狼吞虎咽，连掉在手上的碎屑都舔干净了。\n\n郭子兴看着你：慢点吃，别噎着。\n\n【内心独白】\n朱重八，以前这个名字死了。\n\n从今天起，我是朱元璋。\n\n【遗物】这块饼的碎屑，你一直贴身藏着——后来变成了一块被汗水浸得发黑的饼渣，它提醒你：你是怎么活到今天的。",choices:[{text:"开始训练",next:"chapter1_training",desc:"从基层做起"}]},
+    "chapter1_training": {title:"训练日常",content:"你成为红巾军一员。每天训练、吃饭、等命令。\n\n你开始观察：郭子兴是粗人但人不坏。他手下有个叫汤和的跟你聊得来。还有孙德崖，表面恭敬，背地培养势力。\n\n汤和悄悄找你：朱元璋，孙德崖一直在暗中使绊子……",choices:[{text:"从基层做起",next:"chapter1_basic",desc:"埋头训练"},{text:"主动接近郭子兴",next:"chapter1_approach",desc:"展现才能"},{text:"暗中发展人脉",next:"chapter1_connection",desc:"结交兄弟"},{text:"教训孙德崖",next:"chapter1_fight",desc:"给他点颜色"}]},
+    "chapter1_fight": {title:"教训",content:"你找到孙德崖，二话不说就是一顿打。\n\n「下次再敢说我的坏话，这就是下场！」\n\n孙德崖怀恨在心。郭子兴知道了这件事，把你骂了一顿。但士兵们都在暗暗叫好。",choices:[{text:"道歉和解",next:"chapter1_trust",desc:"息事宁人"},{text:"继续对抗",next:"chapter1_trust",desc:"硬刚到底"}]},
+    "chapter1_basic": {title:"基层做起",content:"你每天最早起床练功，最晚睡觉。很快武力值新兵第一。\n\n伍长任务完成漂亮。\n\n【事件】回来听说孙德崖说你坏话。你记住了。",choices:[{text:"继续前进",next:"chapter1_trust",desc:""}]},
+    "chapter1_approach": {title:"主动接近",content:"你发现元军有批粮草经过。找到郭子兴：将军，我有个主意——抢劫粮草。\n\n郭子兴：好，成功记功，失败自负。\n\n你成功了。\n\n【事件】孙德崖眼神更不善了。",choices:[{text:"继续前进",next:"chapter1_trust",desc:""}]},
+    "chapter1_connection": {title:"结交人脉",content:"你认识汤和，他说：「我有个表亲……」\n\n你说：郭将军对我有恩，我不能走。\n\n他还介绍徐达给你：朱大哥，我跟着你。\n\n徐达只有十六岁，但眼神沉稳：朱大哥！\n\n【侧面描写】\n夜晚，汤和与徐达坐在营火旁。\n\n汤和：徐达，你觉得朱元璋这个人怎么样？\n\n徐达：朱大哥是个实在人。\n\n汤和：我是问你觉得他能不能成大事。\n\n徐达沉默良久：他的眼神……像我爹去世前看我的眼神。\n\n汤和不解：什么意思？\n\n徐达：那是……要把一切都扛下来的眼神。",choices:[{text:"继续前进",next:"chapter1_trust",desc:""}]},
+    "chapter1_trust": {title:"郭子兴的赏识",content:"至正十二年，郭子兴要把养女嫁给你。她叫马秀英，是老朋友女儿，眼神亮。\n\n【内心独白】婚姻意味着什么？是爱情？不。是政治？如果她是个好姑娘……或许这是我唯一温暖的地方。\n\n【本章小结】从一介难民到红巾军将领，你终于在军中站稳脚跟。但孙德崖的敌意让你明白，在这里生存，光有武力是不够的。",choices:[{text:"接受婚事",next:"chapter2_marriage",desc:"愿意"},{text:"婉言拒绝",next:"chapter2_reject",desc:"一事无成"},{text:"索要兵马",next:"chapter2_demand",desc:"要兵马"}]},
+    "chapter2_marriage": {title:"第二章：婚姻",content:"【成亲】\n你单膝下跪：我一定会好好待她。\n\n她低着头，耳朵红了：以后就是一家人了。\n\n你愣住了：活着，跟着我活着就好。\n\n她笑了。这是你第一次笑。\n\n【细节】\n那天晚上，你掀起她的盖头，看到的是一双明亮的眼睛。\n\n她没有嫌弃你是个穷小子。她从怀里掏出一件缝补好的旧袄——「我看你那件破了，今晚给你补好了」。\n\n那是你娘走后，第一次有人给你缝衣服。\n\n【婚后】\n马氏不仅温柔而且聪慧。\n\n她悄悄跟你说：孙德崖不能硬碰也不能放任。\n\n你有她，是你的福气。\n\n【侧面描写】\n婚后第二天，汤和悄悄对徐达说：\n\n「你看，朱元璋娶了马姑娘，整个人都变了。」\n\n「哪儿变了？」\n\n「以前他眼里只有生存，现在……好像有了别的想头了。」\n\n徐达点点头：朱大哥是该有个家了。",choices:[{text:"听马氏的",next:"chapter2_1",desc:"耐心等待时机"},{text:"直接除掉",next:"chapter2_2",desc:"杀掉孙德崖"},{text:"向郭子兴告状",next:"chapter2_3",desc:"揭发他"}]},
+    "chapter2_1": {title:"耐心等待",content:"你采纳马氏的建议，耐心等待机会。\n\n孙德崖果然又有小动作。你暗中收集证据，等待时机。\n\n【效果】孙德崖逐渐失去人心。",choices:[{text:"继续前进",next:"chapter3_crisis",desc:""}]},
+    "chapter2_2": {title:"除掉孙德崖",content:"你暗中安排刺客，终于在一个夜晚除掉了孙德崖。\n\n郭子兴知道后虽然没有怪你，但眼神里多了几分忌惮。\n\n【内心独白】成大事者，不能心软。\n\n【效果】你除掉了心腹大患，但也落下了把柄。",choices:[{text:"继续前进",next:"chapter3_crisis",desc:""}]},
+    "chapter2_3": {title:"揭发孙德崖",content:"你向郭子兴揭发孙德崖的种种恶行。\n\n郭子兴调查后发现属实，严厉处罚了孙德崖。\n\n【效果】你正义的形象深入人心。",choices:[{text:"继续前进",next:"chapter3_crisis",desc:""}]},
+    "chapter2_reject": {title:"拒绝",content:"郭子兴脸拉下来：怎么，嫌我女儿配不上你？\n\n你说：等我功成名就再来。\n\n【内心独白】婚姻是枷锁。",choices:[{text:"继续前进",next:"chapter3_crisis",desc:""}]},
+    "chapter2_demand": {title:"索要",content:"好，但我要五百人当聘礼。我要有自己的队伍。\n\n郭子兴眼神冷：好，给你五百人。\n\n【内心独白】五百人是第一步。总有一天我会拥有真正属于我的力量。",choices:[{text:"继续前进",next:"chapter3_crisis",desc:""}]},
+    "chapter3_crisis": {title:"第三章：裂痕",content:"至正十五年，郭子兴病逝。他的儿子郭天叙继位，但无人服他，是废物。\n\n孙德崖找你：朱元璋，跟我干，我保你荣华富贵。\n\n【内心独白】孙德崖……当年他处处针对我。\n\n【本章小结】郭子兴一死，濠州风云突变。你必须做出选择：继续依附他人，还是自立门户？",choices:[{text:"辅佐郭天叙",next:"chapter3_loyal",desc:"做忠臣"},{text:"暗中发展",next:"chapter3_secret",desc:"积蓄力量"},{text:"离开自立",next:"chapter3_leave",desc:"离开濠州"},{text:"假意投靠",next:"chapter3_betray",desc:"表面答应"}]},
+    "chapter3_betray": {title:"假意投靠",content:"你表面答应孙德崖，暗中收集他谋反的证据。\n\n然后你把证据交给郭天叙，借刀杀人。\n\n孙德崖被处死。你既除掉了敌人，又落了个忠义之名。\n\n【内心独白】这才是真正的权力游戏。",choices:[{text:"继续前进",next:"chapter4_war",desc:""}]},
+    "chapter3_loyal": {title:"忠臣",content:"你辅佐郭天叙，但他是废物，每次开会只说废话。底下阳奉阴违。\n\n孙德崖准备推翻他。郭天叙终于死了，流箭射中胸口。\n\n【内心独白】这就是权力。要么踩着别人上去，要么被别人踩下去。",choices:[{text:"继续前进",next:"chapter4_war",desc:""}]},
+    "chapter3_secret": {title:"隐忍",content:"你表面服从，暗地里拉拢旧部。一批忠诚的兄弟渐渐成了你的班底。\n\n孙德崖：朱元璋，别太嚣张了。\n\n郭天叙死了，你接管军队。\n\n【内心独白】孙德崖，下一个就是你。",choices:[{text:"继续前进",next:"chapter4_war",desc:""}]},
+    "chapter3_leave": {title:"自立",content:"【离别】\n你带着三百多个兄弟，晚上离开濠州。\n\n【送行】\n马氏送你到城门口。\n\n她没有哭——只是把一件缝补好的旧袍塞进你怀里。\n\n「重八，你要去哪儿？」\n\n你看着她明亮的眼睛，不知道怎么回答。\n\n「不知道。但我要闯出一片天。」\n\n「我等你。」\n\n她声音很轻，却像石头一样砸在你心上。\n\n「一定要活着回来。」\n\n【内心独白】\n总有一天，我会回来接你。\n\n你把她的缝的袍子贴身穿上——这是她一针一线缝的。\n\n带着它，就像带着她。",choices:[{text:"继续前进",next:"chapter4_war",desc:""}]},
+    "chapter4_war": {title:"第四章：征战",content:"【环境】\n夜色如墨，集庆的城墙在月光下像一头蛰伏的巨兽。你摸了摸腰间冰凉的刀柄，耳边是兄弟们压抑的呼吸声。\n\n三年前，你在破庙里祈祷的是一碗热粥；今夜，你和几百条性命赌的，是一个天下。\n\n风里传来远处更夫模糊的梆子声——三更天了。\n\n你知道，时候到了。\n\n【现状】\n你带着几百人来到集庆（今南京）。城墙高大，防守严密。元军守备森严，你连一半人都不到。\n\n徐达走到你身边：朱大哥，我跟着你。\n\n你深吸一口气：攻城！",choices:[{text:"强攻",next:"chapter4_assault",desc:"亲率攻城"},{text:"围城",next:"chapter4_siege",desc:"切断粮道"},{text:"用计",next:"chapter4_trick",desc:"买通内应"}]},
+    "chapter4_assault": {title:"强攻",content:"【攻城】\n云梯搭上城墙，箭矢如雨。\n\n身边的人一个接一个倒下——有人是喉咙被射穿，有人是被滚石砸中脑浆迸裂。\n\n你踩着尸体往上爬。尸体堆成了山。\n\n【细节】\n一支流箭擦过你的脸颊，你甚至能闻到箭头上血迹的锈味。\n\n又一个兄弟在你面前倒下——那是徐达的堂兄。\n\n你第一个冲上城头。\n\n集庆破了。\n\n【战后】\n徐达看着堂兄的尸体，眼眶红了：朱大哥，我堂兄死了。\n\n你拍他肩膀：欠下的债，总有一天要还。\n\n你看着满地的尸体，心里只有一个念头：这只是开始。",choices:[{text:"继续前进",next:"chapter4_establish",desc:""}]},
+    "chapter4_siege": {title:"围城",content:"【围城】\n你切断粮道，在城外扎营。\n\n三个月。\n\n城中百姓开始啃树皮、吃观音土。守军的战马杀得只剩骨头。\n\n【细节】\n终于在第三个月的一个凌晨，守军投降了。\n\n城门打开的那一刻，你看到的是一张张浮肿的脸——那是长期饥饿造成的。\n\n李善长策马而来：将军，应该更快行动。\n\n你没有回答，只是看着那些摇摇晃晃走出城的降兵。\n\n【内心独白】\n战争，不只是杀人。",choices:[{text:"继续前进",next:"chapter4_establish",desc:""}]},
+    "chapter4_trick": {title:"用计",content:"【计取】\n你花重金买通了守将的亲信——一个贪财的百夫长。\n\n一个月黑风高夜，三更时分，城门悄然打开。\n\n没有喊杀声。没有流血。\n\n集庆插满你的旗帜。\n\n【细节】\n那百夫长跪在你面前：将军饶命！\n\n你让人把他拖下去——这种人，能背叛旧主，自然也能背叛新主。\n\n但你留下了他的银两。\n\n【内心独白】\n狡诈？如果狡诈能让我赢，我愿意。\n\n只是这笔账，记在心里罢了。",choices:[{text:"继续前进",next:"chapter4_establish",desc:""}]},
+    "chapter4_establish": {title:"根据地",content:"集庆改名应天府。你开始经营：修城墙、招兵、开荒。\n\n李善长求见：将军，要想成大事，需要八个字——「高筑墙、广积粮、缓称王」。\n\n【内心独白】称王还不是时候。枪打出头鸟。\n\n【选择】如何治理新根据地？",choices:[{text:"严刑峻法",next:"chapter4_1",desc:"以法治国",attrs:{威权:2,仁德:-1}},{text:"仁政治民",next:"chapter4_2",desc:"爱民如子",attrs:{仁德:2,威权:-1}},{text:"军事优先",next:"chapter4_3",desc:"全力备战",attrs:{威权:1,果决:1}}]},
+    "chapter4_1": {title:"严刑峻法",content:"你制定严苛的法律。偷盗者斩首，抢劫者全家发配。\n\n百姓噤若寒蝉，但社会治安迅速好转。\n\n谋士：将军，过于严苛会失去民心啊。\n\n【效果】民心+10 但 忠诚度-5",choices:[{text:"继续前进",next:"chapter4_establish_2",desc:""}]},
+    "chapter4_2": {title:"仁政治民",content:"你减免赋税，开仓放粮。百姓感激涕零。\n\n百姓编歌谣颂扬你：朱将军，爱民如子！\n\n【内心独白】得民心者得天下。\n\n【效果】民心+30 但 军饷不足",choices:[{text:"继续前进",next:"chapter4_establish_2",desc:""}]},
+    "chapter4_3": {title:"军事优先",content:"你全力扩军备战。百姓负担加重，但军队战斗力飙升。\n\n徐达：大哥，兄弟们都在议论什么时候打陈友谅！\n\n【效果】兵力+20 但 民心-10",choices:[{text:"继续前进",next:"chapter4_establish_2",desc:""}]},
+    "chapter4_establish_2": {title:"招贤",content:"谋士来访：将军，最大敌人是陈友谅。他最强，但有个致命缺点——骄傲。\n\n李善长内政，刘伯温谋略，再加上徐达、常遇春。我的班底越来越强了。\n\n【本章小结】根基已立，是时候逐鹿天下了。陈友谅六十万大军压境，鄱阳湖上将有一场恶战。\n\n【选择】如何对待俘虏？",choices:[{text:"全部坑杀",next:"chapter5_enemy",desc:"以绝后患",attrs:{威权:2,仁德:-2}},{text:"收编降军",next:"chapter5_enemy_2",desc:"收编扩充",attrs:{威权:1}},{text:"放回去",next:"chapter5_enemy_3",desc:"展示仁义",attrs:{仁德:2}}]},
+    "chapter5_enemy_2": {title:"收编降军",content:"你收编了降军，扩充了实力。但其中有人心怀不满，暗中策划叛乱。\n\n【效果】兵力大增但内部不稳\n\n将领：将军，有人逃跑！",choices:[{text:"继续前进",next:"chapter5_enemy",desc:""}]},
+    "chapter5_enemy_3": {title:"放回俘虏",content:"你放了俘虏，让他们回去传播你的仁义。\n\n俘虏们感恩戴德，有的甚至回来投奔你。\n\n【效果】仁义之名远扬，更多人投奔\n\n谋士：将军仁义，必得天下。",choices:[{text:"继续前进",next:"chapter5_enemy",desc:""}]},
+    "chapter5_enemy": {title:"第五章：宿敌",content:"【战前】\n至正二十年，陈友谅弑主篡位，自立为汉帝。\n\n他有六十万大军，战舰上千艘，水军天下第一。而你只有二十万。\n\n【情报】\n就在大军开拔前，探子送来一份抄录的民间童谣：\n\n「朱重八，喝菜汤；陈九四，吃皇粮。菜汤稀，皇粮香，不知明年谁称王？」\n\n（注：陈友谅原名陈九四）\n\n这童谣让你想起了什么？\n\n刘伯温：将军，我们可以利用他的骄傲，示弱诱敌，一击必杀。\n\n鄱阳湖。这一战，没有退路。",choices:[{text:"一笑置之",next:"chapter5_battle_normal",desc:"正面决战"},{text:"心生警惕",next:"chapter5_battle_fire",desc:"火攻"},{text:"严令禁止",next:"chapter5_battle_stalemate",desc:"对峙"},{text:"诈降",next:"chapter5_battle_trick",desc:"刺杀"}]},
+    "chapter5_battle_normal": {title:"正面决战",content:"【七日血战】\n湖水被鲜血染红。\n\n第一天，喊杀声震天。\n第二天，尸体漂满湖面。\n第三天，你已经听不到喊声，只有刀剑相击的清脆。\n\n第七天，你二十万只剩八万。但陈友谅六十万全军覆没。\n\n【战后】\n你赢了，但赢得太惨。\n\n湖面上漂浮着无数尸首，你依稀辨认出几张熟悉的面孔——那些跟着你从濠州杀出来的兄弟。\n\n【内心独白】二十万兄弟跟着我打天下，最后埋骨这里。\n\n你让人把能找到的兄弟尸体好生安葬。\n\n「欠下的债，我会替你们讨回来。」\n\n【侧面描写】\n战后，一个幸存的老兵对另一个说：\n\n「跟着朱将军，虽然九死一生，但他从来没有让我们失望过。」\n\n「是啊……他总是冲在最前面。」",choices:[{text:"继续",next:"chapter6_final",desc:""}]},
+    "chapter5_battle_fire": {title:"火攻",content:"【火攻】\n那天东南风起。\n\n你站在船头，看着那几十艘火船顺风冲入敌阵。\n\n先是零星的火点，然后是冲天的火光。\n\n哭喊声、惨叫声混杂在一起，空气中弥漫着人肉烧焦的恶臭。\n\n那是人间炼狱。\n\n【战后】\n陈友谅跑了，被你派人抓住。\n\n他看着你：成王败寇。动手吧。\n\n你挥手。鄱阳湖之战大获全胜。\n\n但当晚，你独自坐在船头，看着远处还未散尽的浓烟，久久不语。\n\n【内心独白】这就是战争。不是你死，就是我亡。",choices:[{text:"继续",next:"chapter6_final",desc:""}]},
+    "chapter5_battle_stalemate": {title:"对峙",content:"【对峙】\n你占据有利地形，不打。\n\n陈友谅来攻？你不出战。\n\n他挑战？你不应。\n\n他在湖上你在岸上——他水军天下无敌，但你根本不跟他打水战。\n\n【消耗】\n三个月。\n\n陈友谅的粮草逐渐耗尽。\n\n先是战马杀来吃了，然后是杀俘虏，最后开始啃树皮。\n\n【战后】\n那天早上，探子来报：陈友谅跑了！\n\n你带人追上去。\n\n一支流箭飞来，正中他胸口。\n\n他看着天，眼睛瞪大——仿佛不敢相信自己的结局。\n\n【内心独白】\n不战而屈人之兵。善之善者也。",choices:[{text:"继续",next:"chapter6_final",desc:""}]},
+    "chapter5_battle_trick": {title:"诈降",content:"你让人放出消息投降。陈友谅信了。你带亲信假装谈判，抽出刀。\n\n但他亲卫反应更快。你死了。\n\n【失败-战死】",ending:"ending_fail"},
+    "chapter6_final": {title:"第六章：称帝",content:"陈友谅已灭，张士诚也平定了。放眼天下，再无敌手。\n\n部下：大将军，该当皇帝了吧？\n\n你知道这一步至关重要。称帝早，成为众矢之的；称帝晚，部下可能有想法。\n\n十六年了，从跪在父母坟前的少年到一方霸主。\n\n现在该决定了。\n\n【选择】如何处理功臣？",choices:[{text:"缓称王",next:"ending_ming",desc:"广积粮"},{text:"立刻称帝",next:"ending_ming_fast",desc:"登基"},{text:"杯酒释兵权",next:"ending_jieduan",desc:"削藩"},{text:"杀掉功臣",next:"ending_kill",desc:"兔死狗烹"},{text:"挟天子",next:"ending_regent",desc:"拥立"}]}
+  },
+  endings: {
+    "ending_ming":{title:"明太祖",type:"success",tag:"通关",content:"【登基大典】\n洪武元年正月初四。应天府太和殿。\n\n你穿着龙袍坐龙椅。底下文武百官山呼万岁。\n\n【回忆】\n你想起十六年前跪在父母坟前一无所有的少年。\n\n那三年流浪的日子——皇觉寺老方丈的那碗粥。\n\n郭子兴扔给你的那块饼——「吃吧」。\n\n马氏缝补的那件战袍——「活着回来」。\n\n你想起了一切。\n\n【内心独白】\n从朱重八到朱元璋。从乞丐到皇帝。\n\n我用了十六年。\n\n众卿平身。\n\n你说。\n\n声音回荡大殿。\n\n你是明太祖。\n\n你是洪武皇帝。\n\n【通关】"},
+    "ending_ming_fast":{title:"明太祖（急）",type:"alternate",tag:"分支",content:"你选择立刻称帝。消息传出，天下震动。\n\n有人祝贺，有人眼红，准备讨伐。\n\n你根基未稳，各地元朝残余和诸侯联合推翻你。\n\n你才刚刚坐上龙椅，就要开始新一轮征战。\n\n这不是结束，只是另一个开始。\n\n【分支结局-根基不稳】"},
+    "ending_jieduan":{title:"杯酒释兵权",type:"success",tag:"分支",content:"你设宴款待功臣。酒过三巡，你感慨万千：各位跟着我打天下，辛苦了。但朕实在担心……\n\n功臣们明白了。第二天，他们纷纷交出兵权，请求告老还乡。\n\n你厚赏他们，让他们风光回家。\n\n史书称赞：宋太祖杯酒释兵权，明太祖效仿之，堪称典范。\n\n【分支结局-和平演变】"},
+    "ending_kill":{title:"兔死狗烹",type:"fail",tag:"失败",content:"你开始除掉功臣。徐达、常遇春、汤和……一个接一个。\n\n他们临死前都在问你：为什么？\n\n你说不为什么。只是因为你们太有本事了。\n\n终于有一天，你也被刺杀了。死在龙椅上。\n\n【失败-兔死狗烹】"},
+    "ending_regent":{title:"权臣",type:"alternate",tag:"分支",content:"你找到元朝皇室后裔，拥立为帝。站在幕后操控一切。\n\n皇帝是你的傀儡，你是实质统治者。\n\n多年后史书会怎么记载？是权臣还是忠臣？\n\n只有你自己知道。\n\n【分支结局】"},
+    "die_starve":{title:"饿死",type:"fail",tag:"失败",content:"你饿死在寺庙里。临死前你还在想那碗粥。\n\n【失败-饿死】"},
+    "ending_fail":{title:"战死",type:"fail",tag:"失败",content:"你的计策失败。尸体漂在鄱阳湖上。\n\n没有人记住你的名字。若干年后史书记载：朱元璋，反贼一名，早夭。\n\n【失败】"}
+  },
+  achievements:[
+    {id:"ach_ming",title:"明太祖",desc:"完成统一",condition:"ending_ming"},
+    {id:"ach_fast",title:"明太祖（急）",desc:"根基不稳时称帝",condition:"ending_ming_fast"},
+    {id:"ach_jieduan",title:"杯酒释兵权",desc:"和平解除功臣兵权",condition:"ending_jieduan"},
+    {id:"ach_kill",title:"兔死狗烹",desc:"杀掉所有功臣",condition:"ending_kill"},
+    {id:"ach_regent",title:"权臣",desc:"挟天子以令诸侯",condition:"ending_regent"},
+    {id:"ach_fail",title:"战死",desc:"鄱阳湖战败",condition:"ending_fail"},
+    {id:"ach_starve",title:"饿死",desc:"留在寺庙饿死",condition:"die_starve"}
+  ]
+};
+
+game.init();
+  </script>
+</body>
+</html>
